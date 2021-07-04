@@ -1,3 +1,4 @@
 {
-    "query_list": ["test"]
+    "query_list": ["test"],
+    "file_types": ["xml","json","xslx","txt"]
 }

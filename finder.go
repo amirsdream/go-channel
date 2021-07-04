@@ -24,9 +24,10 @@ func init() {
 
 type QueryList struct {
 	QueryList []string `json:"query_list"`
+	FileTypes []string `json:"file_types"`
 }
 
-func loadConfig() []string {
+func loadConfig() QueryList {
 	file, err := ioutil.ReadFile("config.json")
 	if err != nil {
 		log.Fatalf("config file has an issue: %s", err)
@@ -35,7 +36,7 @@ func loadConfig() []string {
 	data := QueryList{}
 
 	_ = json.Unmarshal([]byte(file), &data)
-	return data.QueryList
+	return data
 }
 
 func fileWriter(result chan string) {
@@ -92,13 +93,19 @@ func stringProcessor(file string, name string, result chan string) {
 
 }
 
-func visit(files *[]string) filepath.WalkFunc {
+func visit(files *[]string, file_types []string) filepath.WalkFunc {
 	return func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 			// log.Fatal(err)
 		}
-		re := regexp.MustCompile(`\.json$|\.txt$`)
+		pattern := ""
+		for _, t := range file_types {
+			temp := fmt.Sprintf(`\.%s$|`, t)
+			pattern += temp
+		}
+		pattern = pattern[:len(pattern)-1]
+		re := regexp.MustCompile(pattern)
 		if re.Match([]byte(filepath.Base(path))) {
 			*files = append(*files, path)
 		}
@@ -110,17 +117,17 @@ func main() {
 	var files []string
 	flag.Parse()
 	root := *location
-	query_list := loadConfig()
+	data := loadConfig()
 	result := make(chan string)
 	if len(root) == 0 {
 		fmt.Println("Usage: finder.exe -location path/to/location")
 		os.Exit(1)
 	}
-	err := filepath.Walk(root, visit(&files))
+	err := filepath.Walk(root, visit(&files, data.FileTypes))
 	if err != nil {
 		panic(err)
 	}
-	go searchEngine(files, query_list, result)
+	go searchEngine(files, data.QueryList, result)
 	fileWriter(result)
 
 }
