@@ -27,7 +27,10 @@ type QueryList struct {
 }
 
 func loadConfig() []string {
-	file, _ := ioutil.ReadFile("config.json")
+	file, err := ioutil.ReadFile("config.json")
+	if err != nil {
+		log.Fatalf("config file has an issue: %s", err)
+	}
 
 	data := QueryList{}
 
