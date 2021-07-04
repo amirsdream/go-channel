@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -10,14 +9,6 @@ import (
 	"strconv"
 	"strings"
 )
-
-func isError(err error) bool {
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	return (err != nil)
-}
 
 func fileWriter(result chan string) {
 	path := "test.txt"
@@ -39,8 +30,8 @@ func fileWriter(result chan string) {
 	datawriter.Flush()
 	file.Close()
 }
-func stringFinder(files []string, result chan string) {
-	names := [2]string{"es2015", "test"}
+func searchEngine(files []string, names []string, result chan string) {
+
 	for _, file := range files {
 		for _, name := range names {
 			stringProcessor(file, name, result)
@@ -89,6 +80,7 @@ func visit(files *[]string) filepath.WalkFunc {
 
 func main() {
 	var files []string
+	names := []string{"es2015", "test"}
 	result := make(chan string)
 
 	root := "D:\\Code"
@@ -97,7 +89,7 @@ func main() {
 		panic(err)
 	}
 
-	go stringFinder(files, result)
+	go searchEngine(files, names, result)
 	fileWriter(result)
 
 }
