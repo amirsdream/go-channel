@@ -2,6 +2,10 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
+	"flag"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -9,6 +13,27 @@ import (
 	"strconv"
 	"strings"
 )
+
+var (
+	location *string
+)
+
+func init() {
+	location = flag.String("location", "", "location to search")
+}
+
+type QueryList struct {
+	QueryList []string `json:"query_list"`
+}
+
+func loadConfig() []string {
+	file, _ := ioutil.ReadFile("config.json")
+
+	data := QueryList{}
+
+	_ = json.Unmarshal([]byte(file), &data)
+	return data.QueryList
+}
 
 func fileWriter(result chan string) {
 	path := "test.csv"
@@ -30,10 +55,10 @@ func fileWriter(result chan string) {
 	datawriter.Flush()
 	file.Close()
 }
-func searchEngine(files []string, names []string, result chan string) {
+func searchEngine(files []string, query_list []string, result chan string) {
 
 	for _, file := range files {
-		for _, name := range names {
+		for _, name := range query_list {
 			stringProcessor(file, name, result)
 		}
 	}
@@ -80,16 +105,23 @@ func visit(files *[]string) filepath.WalkFunc {
 
 func main() {
 	var files []string
-	names := []string{"es2015", "test"}
+	flag.Parse()
+	root := *location
+	if len(root) == 0 {
+		fmt.Println("Usage: finder.exe -location path/to/location")
+		// flag.PrintDefaults()
+		os.Exit(1)
+	}
+
+	query_list := loadConfig()
 	result := make(chan string)
 
-	root := "D:\\Code"
 	err := filepath.Walk(root, visit(&files))
 	if err != nil {
 		panic(err)
 	}
 
-	go searchEngine(files, names, result)
+	go searchEngine(files, query_list, result)
 	fileWriter(result)
 
 }
