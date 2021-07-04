@@ -11,7 +11,7 @@ import (
 )
 
 func fileWriter(result chan string) {
-	path := "test.txt"
+	path := "test.csv"
 
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0644)
 
@@ -52,7 +52,7 @@ func stringProcessor(file string, name string, result chan string) {
 	line := 1
 	for scanner.Scan() {
 		if strings.Contains(scanner.Text(), name) {
-			result <- file + " " + name + " " + strconv.Itoa(line)
+			result <- file + ", " + name + ", " + strconv.Itoa(line)
 		}
 		line++
 	}
