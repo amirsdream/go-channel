@@ -2,16 +2,27 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 )
 
-func fileWriter(result chan string) {
+func isError(err error) bool {
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
-	file, err := os.OpenFile("test.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	return (err != nil)
+}
+
+func fileWriter(result chan string) {
+	path := "test.txt"
+
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0644)
 
 	if err != nil {
 		log.Fatalf("failed creating file: %s", err)
@@ -68,9 +79,8 @@ func visit(files *[]string) filepath.WalkFunc {
 			return nil
 			// log.Fatal(err)
 		}
-		if matched, err := filepath.Match("*.json", filepath.Base(path)); err != nil {
-			return err
-		} else if matched {
+		re := regexp.MustCompile(`\.json$|\.txt$`)
+		if re.Match([]byte(filepath.Base(path))) {
 			*files = append(*files, path)
 		}
 		return nil
@@ -89,4 +99,5 @@ func main() {
 
 	go stringFinder(files, result)
 	fileWriter(result)
+
 }
