@@ -110,20 +110,16 @@ func main() {
 	var files []string
 	flag.Parse()
 	root := *location
-	if len(root) == 0 {
-		fmt.Println("Usage: finder.exe -location path/to/location")
-		// flag.PrintDefaults()
-		os.Exit(1)
-	}
-
 	query_list := loadConfig()
 	result := make(chan string)
-
+	if len(root) == 0 {
+		fmt.Println("Usage: finder.exe -location path/to/location")
+		os.Exit(1)
+	}
 	err := filepath.Walk(root, visit(&files))
 	if err != nil {
 		panic(err)
 	}
-
 	go searchEngine(files, query_list, result)
 	fileWriter(result)
 
