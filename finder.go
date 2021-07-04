@@ -2,15 +2,34 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
+func fileWriter(result chan string) {
+
+	file, err := os.OpenFile("test.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+
+	if err != nil {
+		log.Fatalf("failed creating file: %s", err)
+	}
+
+	datawriter := bufio.NewWriter(file)
+
+	for v := range result {
+		if v != "none" {
+			_, _ = datawriter.WriteString(v + "\n")
+		}
+	}
+
+	datawriter.Flush()
+	file.Close()
+}
 func stringFinder(files []string, result chan string) {
-	names := [3]string{"es2015", "node", "test"}
+	names := [2]string{"es2015", "test"}
 	for _, file := range files {
 		for _, name := range names {
 			stringProcessor(file, name, result)
@@ -28,11 +47,12 @@ func stringProcessor(file string, name string, result chan string) {
 	scanner := bufio.NewScanner(f)
 	buf := make([]byte, 0, 64*1024)
 	scanner.Buffer(buf, 1024*1024)
-
+	line := 1
 	for scanner.Scan() {
 		if strings.Contains(scanner.Text(), name) {
-			result <- file + " " + name
+			result <- file + " " + name + " " + strconv.Itoa(line)
 		}
+		line++
 	}
 
 	result <- "none"
@@ -68,11 +88,5 @@ func main() {
 	}
 
 	go stringFinder(files, result)
-
-	for v := range result {
-		if v != "none" {
-			fmt.Println(v)
-		}
-	}
-
+	fileWriter(result)
 }
