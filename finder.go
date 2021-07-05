@@ -63,6 +63,7 @@ func searchEngine(files []string, query_list []string, result chan string) {
 			stringProcessor(file, name, result)
 		}
 	}
+	close(result)
 }
 
 func stringProcessor(file string, name string, result chan string) {
@@ -123,7 +124,7 @@ func main() {
 		panic(err)
 	}
 	go searchEngine(files, data.QueryList, result)
-	close(result)
+
 	fileWriter(result)
 
 }
