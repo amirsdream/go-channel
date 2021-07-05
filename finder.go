@@ -81,7 +81,6 @@ func stringProcessor(file string, name string, result chan string) {
 		}
 		line++
 	}
-
 	// result <- "none"
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
