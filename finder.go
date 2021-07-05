@@ -22,18 +22,18 @@ func init() {
 	location = flag.String("location", "", "location to search")
 }
 
-type QueryList struct {
+type JsonData struct {
 	QueryList []string `json:"query_list"`
 	FileTypes []string `json:"file_types"`
 }
 
-func loadConfig() QueryList {
+func loadConfig() JsonData {
 	file, err := ioutil.ReadFile("config.json")
 	if err != nil {
 		log.Fatalf("config file has an issue: %s", err)
 	}
 
-	data := QueryList{}
+	data := JsonData{}
 
 	_ = json.Unmarshal([]byte(file), &data)
 	return data
