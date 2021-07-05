@@ -51,9 +51,7 @@ func fileWriter(result chan string) {
 	datawriter := bufio.NewWriter(file)
 
 	for v := range result {
-		if v != "none" {
-			_, _ = datawriter.WriteString(v + "\n")
-		}
+		_, _ = datawriter.WriteString(v + "\n")
 	}
 
 	datawriter.Flush()
@@ -86,7 +84,7 @@ func stringProcessor(file string, name string, result chan string) {
 		line++
 	}
 
-	result <- "none"
+	// result <- "none"
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
