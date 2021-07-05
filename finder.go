@@ -58,13 +58,11 @@ func fileWriter(result chan string) {
 	file.Close()
 }
 func searchEngine(files []string, query_list []string, result chan string) {
-
 	for _, file := range files {
 		for _, name := range query_list {
 			stringProcessor(file, name, result)
 		}
 	}
-
 }
 
 func stringProcessor(file string, name string, result chan string) {
