@@ -57,6 +57,10 @@ func fileWriter(result chan string) {
 		}
 		fmt.Println(l, "bytes written successfully")
 		err = f.Close()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	}
 }
 func searchEngine(files []string, query_list []string, result chan string) {
