@@ -42,20 +42,22 @@ func loadConfig() JsonData {
 func fileWriter(result chan string) {
 	path := "test.csv"
 
-	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-
-	if err != nil {
-		log.Fatalf("failed creating file: %s", err)
+	for msg := range result {
+		fmt.Println("received", msg)
+		f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		l, err := f.WriteString(msg + "\n")
+		if err != nil {
+			fmt.Println(err)
+			f.Close()
+			return
+		}
+		fmt.Println(l, "bytes written successfully")
+		err = f.Close()
 	}
-
-	datawriter := bufio.NewWriter(file)
-
-	for v := range result {
-		_, _ = datawriter.WriteString(v + "\n")
-	}
-
-	datawriter.Flush()
-	file.Close()
 }
 func searchEngine(files []string, query_list []string, result chan string) {
 	for _, file := range files {
